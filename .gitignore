@@ -1,3 +1,7 @@
 vbox*
 venv*
 .vscode
+.DS_Store
+__pycache__
+data
+Description*.pdf
