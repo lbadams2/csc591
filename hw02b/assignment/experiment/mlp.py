@@ -25,6 +25,8 @@ def get_args():
                         help='Gradient check')
     parser.add_argument('--train', action='store_true',
                         help='Train the model')
+    parser.add_argument('--test', action='store_true',
+                        help='Test the model')
 
 
     return parser.parse_args()
@@ -56,11 +58,18 @@ def gradient_check():
     model = network2.Network([784, 20, 10])
     model.gradient_check(training_data=train_data, layer_id=1, unit_id=5, weight_id=3)
 
+def test():
+    train_data, valid_data, test_data = load_data()
+    model = network2.load('model2.json')
+    correct = model.accuracy(test_data)
+    acc = correct / len(test_data[0])
+    print('Test accuracy:', str(acc))
+
 def main():
     # load train_data, valid_data, test_data
     train_data, valid_data, test_data = load_data()
     # construct the network
-    model = network2.Network([784, 20, 10])
+    model = network2.Network([784, 32, 10])
     # train the network using SGD
     model.SGD(
         training_data=train_data,
@@ -73,6 +82,7 @@ def main():
         monitor_evaluation_accuracy=True,
         monitor_training_cost=True,
         monitor_training_accuracy=True)
+    model.save('model2.json')
 
 if __name__ == '__main__':
     FLAGS = get_args()
@@ -84,3 +94,5 @@ if __name__ == '__main__':
         main()
     if FLAGS.gradient:
         gradient_check()
+    if FLAGS.test:
+        test()
