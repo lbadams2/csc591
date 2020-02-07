@@ -8,12 +8,12 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
-sys.path.append('../')
+sys.path.append('/Users/liam_adams/my_repos/csc591/hw02b/assignment')
 import src.network2 as network2
 import src.mnist_loader as loader
 import src.activation as act
 
-DATA_PATH = '../../data/'
+DATA_PATH = '/Users/liam_adams/my_repos/csc591/hw02b/data/'
 
 def get_args():
     parser = argparse.ArgumentParser()

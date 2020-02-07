@@ -11,7 +11,7 @@ def backprop(x, y, biases, weightsT, cost, num_layers):
         gradient of all biases and weights.
 
         Args:
-            x, y: input image x and label y -> x is [mini_batch x 784] matrix, y is [mini_batch, 10] matrix
+            x, y: input image x and label y -> x is a single 784 x 1 np array, y is a 10 x 1 np array
             biases, weights (list): list of biases and transposed weights of entire network
             
             biases is list of 2 vectors for final 2 (of 3) layers. First is 20 x 1, second is 10 x 1
@@ -38,23 +38,21 @@ def backprop(x, y, biases, weightsT, cost, num_layers):
     # by feedforward pass
     ###
     activations = []
-
-    i = 0
+    x_input = x
     for b, wT in zip(biases, weightsT):
-        layer_activations = np.zeros(n, b.shape[0])
+        #layer_activations = np.zeros(b.shape)
         #layer_activations = [[0] * b.shape[0]] * n # activation for each of the n inputs will be a vector with same dim as bias (size of hidden layer)
-        j = 0
-        for xi in x:
-            xi = sigmoid(np.dot(wT, xi)+b) # xi is vector with same size as bias (size of hidden layer)            
-            layer_activations[j] = xi # set row to activation vector of one input for the current hidden layer
-            j += 1
-        activations.append(layer_activations)
-        i += 1
+        #test = np.dot(wT, x)
+        #test = test + b
+        #test2 = sigmoid(test)
+        x = sigmoid(np.dot(wT, x)+b) # xi is vector with same size as bias (size of hidden layer)            
+        #layer_activations[i] = x # set row to activation vector of one input for the current hidden layer
+        activations.append(x)
 
 
     # compute the gradient of error respect to output
     # activations[-1] is the list of activations of the output layer
-    delta = (cost).df_wrt_a(activations[-1], y)
+    delta = (cost).df_wrt_a(activations[-1], y) # delta is 10 x 1, same dims as last ouput layer (y-hat) and y
     
     ### Implement here
     # backward pass
@@ -62,15 +60,19 @@ def backprop(x, y, biases, weightsT, cost, num_layers):
     # gradient for each weight and bias
     ###
     # delta is [n x 10] matrix of gradients of loss function evaluated at each y_hat
-    for l in range(num_layers - 1, -1, -1):
-        a = activations[l] # activation vectors for lth layer - [n x 10] matrix for last layer
-        a_prime = sigmoid_prime(a)
-        delta = delta * a_prime # this should give element wise multiplication of the matrices
-        nabla_b[l] = delta # if no lambda and regularization
-        if l > 0:
-            nabla_wT[l] = activations[l-1].dot(delta.T)
+    for k in range(num_layers - 2, -1, -1):
+        a = activations[k] # activation vector for lth layer - 10 x 1 for last layer
+        a_prime = sigmoid_prime(a) # this is still 10 x 1 or h x 1
+        delta = delta * a_prime # this should give element wise multiplication of the matrices - 10 x 1 or h x 1
+        nabla_b[k] = delta # if no lambda and regularization
+        if k > 0:
+            weight = activations[k-1].dot(delta.T) # this will be [20 x 1] dot [1 x 10] = 20 x 10
+            nabla_wT[k] =  weight.T
         else:
-            nabla_wT[l] = x * delta.T
+            weight = x_input.dot(delta.T)
+            nabla_wT[k] = weight.T
+        w_untranspose = weightsT[k].T
+        delta = w_untranspose.dot(delta)
 
     return (nabla_b, nabla_wT)
 

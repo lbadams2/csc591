@@ -146,7 +146,7 @@ class Network(object):
 
         """
         if evaluation_data: n_data = len(evaluation_data[0])
-        # training data[0] is n x 784 matrix
+        # training data[0] is list of 784 x 1 np vectors. List of size n
         n = len(training_data[0])
         evaluation_cost, evaluation_accuracy = [], []
         training_cost, training_accuracy = [], []
@@ -162,7 +162,7 @@ class Network(object):
             # mini_batches = [
             #     training_data[k:k+mini_batch_size]
             #     for k in range(0, n, mini_batch_size)]
-            for mini_batch in mini_batches: # mini_batches is list of tuples, mini_batch is a tuple
+            for mini_batch in mini_batches: # mini_batches is list of tuples, mini_batch is a tuple - mini_batch[0] is mini_batch x 784
                 self.update_mini_batch(
                     mini_batch, eta, lmbda, len(training_data[0]))
             print('Epoch {} training complete'.format(j))
@@ -197,11 +197,11 @@ class Network(object):
 
         """
         nabla_b = [np.zeros(b.shape) for b in self.biases]
-        nabla_wT = [np.zeros(wT.shape) for wT in self.weightsT]
+        nabla_wT = [np.zeros(wT.shape) for wT in self.weightsT] # first weight matrix is 20 x 784 which will transform 784 x 1 input
         # mini_batch is a training_data[0] and training_data[1] tuple, (mini_batch x 784, mini_batch x 10)
         # *mini_batch removes the elements from the tuple and allows us to zip them
         for x, y in zip(*mini_batch):
-
+            # now x and y are individual input/output pairs - 784 x 1, 10 x 1
             delta_nabla_b, delta_nabla_wT = self.backprop(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_wT = [nwT+dnwT for nwT, dnwT in zip(nabla_wT, delta_nabla_wT)]
