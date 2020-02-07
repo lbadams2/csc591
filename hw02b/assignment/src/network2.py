@@ -85,6 +85,11 @@ class Network(object):
 
         """
         self.biases = [np.random.randn(y, 1) for y in self.sizes[1:]]
+        # sizes is [784, 20, 10], [:-1] gets first 2, [1:] gets last 2, zip lines them up
+        # after zip we have [(784, 20), (20, 10)], np creates 20x784 weight matrix and 10x20 weight matrix
+        # weight matrix has columns dimension of input and rows dimension of hidden layer it is transforming input to
+        # for example since the first input is of dim 784, the first weight matrix has 784 cols, and transforms to 20x1 col vector
+        # this is actually the transpose of the weight matrix. it will transform a single input (a 784 col vector)
         self.weightsT = [np.random.randn(y, x)/np.sqrt(x)
                         for x, y in zip(self.sizes[:-1], self.sizes[1:])]
 
@@ -141,14 +146,15 @@ class Network(object):
 
         """
         if evaluation_data: n_data = len(evaluation_data[0])
+        # training data[0] is n x 784 matrix
         n = len(training_data[0])
         evaluation_cost, evaluation_accuracy = [], []
         training_cost, training_accuracy = [], []
         for j in range(epochs):
-            idxs = np.arange(n)
+            idxs = np.arange(n) # returns array of indexes from 0 to n-1
             random.shuffle(idxs)
-            mini_batches = [
-                (training_data[0][idxs[k]:idxs[k+mini_batch_size-1]],
+            mini_batches = [ # divides training data into mini_batch_size chunks
+                (training_data[0][idxs[k]:idxs[k+mini_batch_size-1]], # gets mini_batch rows from training_data[0] matrix
                 training_data[1][idxs[k]:idxs[k+mini_batch_size-1]])
                     for k in range(0, n-mini_batch_size, mini_batch_size)]
 
@@ -156,7 +162,7 @@ class Network(object):
             # mini_batches = [
             #     training_data[k:k+mini_batch_size]
             #     for k in range(0, n, mini_batch_size)]
-            for mini_batch in mini_batches:
+            for mini_batch in mini_batches: # mini_batches is list of tuples, mini_batch is a tuple
                 self.update_mini_batch(
                     mini_batch, eta, lmbda, len(training_data[0]))
             print('Epoch {} training complete'.format(j))
@@ -192,6 +198,8 @@ class Network(object):
         """
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_wT = [np.zeros(wT.shape) for wT in self.weightsT]
+        # mini_batch is a training_data[0] and training_data[1] tuple, (mini_batch x 784, mini_batch x 10)
+        # *mini_batch removes the elements from the tuple and allows us to zip them
         for x, y in zip(*mini_batch):
 
             delta_nabla_b, delta_nabla_wT = self.backprop(x, y)

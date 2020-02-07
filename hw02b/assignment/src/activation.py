@@ -7,8 +7,10 @@ import numpy as np
 
 def sigmoid(z):
     """The sigmoid function."""
-    return 0
+    ans = 1/(1 + np.exp(-z))
+    return ans
 
 def sigmoid_prime(z):
     """Derivative of the sigmoid function."""
-    return 0
+    ans = sigmoid(z)*(1 - sigmoid(z))
+    return ans
