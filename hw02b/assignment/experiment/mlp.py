@@ -60,7 +60,7 @@ def gradient_check():
 
 def test():
     train_data, valid_data, test_data = load_data()
-    model = network2.load('model2.json')
+    model = network2.load('model.json')
     correct = model.accuracy(test_data)
     acc = correct / len(test_data[0])
     print('Test accuracy:', str(acc))
@@ -69,7 +69,7 @@ def main():
     # load train_data, valid_data, test_data
     train_data, valid_data, test_data = load_data()
     # construct the network
-    model = network2.Network([784, 32, 10])
+    model = network2.Network([784, 64, 10])
     # train the network using SGD
     model.SGD(
         training_data=train_data,
@@ -82,7 +82,7 @@ def main():
         monitor_evaluation_accuracy=True,
         monitor_training_cost=True,
         monitor_training_accuracy=True)
-    model.save('model2.json')
+    model.save('model.json')
 
 if __name__ == '__main__':
     FLAGS = get_args()
