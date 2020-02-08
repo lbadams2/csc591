@@ -69,7 +69,7 @@ def main():
     # load train_data, valid_data, test_data
     train_data, valid_data, test_data = load_data()
     # construct the network
-    model = network2.Network([784, 128, 10])
+    model = network2.Network([784, 200, 10])
     # train the network using SGD
     model.SGD(
         training_data=train_data,
