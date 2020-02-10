@@ -7,6 +7,7 @@ import sys
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 
 sys.path.append('/Users/liam_adams/my_repos/csc591/hw02b/assignment')
 import src.network2 as network2
@@ -61,9 +62,17 @@ def gradient_check():
 def test():
     train_data, valid_data, test_data = load_data()
     model = network2.load('model.json')
-    correct = model.accuracy(test_data)
+    correct, results = model.accuracy(test_data)
     acc = correct / len(test_data[0])
     print('Test accuracy:', str(acc))
+
+    predictions = [network2.vectorized_result(x) for (x, y) in results]
+    with open('predictions.csv', 'w') as f:
+        wr = csv.writer(f)
+        for vec in predictions:
+            li = vec.flatten().tolist()
+            wr.writerow(li)
+
 
 def main():
     # load train_data, valid_data, test_data
@@ -71,17 +80,34 @@ def main():
     # construct the network
     model = network2.Network([784, 200, 10])
     # train the network using SGD
-    model.SGD(
+    eval_cost, eval_acc, train_cost, train_acc = model.SGD(
         training_data=train_data,
         epochs=100,
         mini_batch_size=128,
         eta=1e-3,
-        lmbda = 0.0,
+        lmbda = 2,
         evaluation_data=valid_data,
         monitor_evaluation_cost=True,
         monitor_evaluation_accuracy=True,
         monitor_training_cost=True,
         monitor_training_accuracy=True)
+    plt.plot(eval_cost)
+    plt.plot(train_cost)
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training and Validation Loss')
+    plt.legend(['Validation', 'Training'], loc='upper left')
+    plt.show()
+
+    tr_acc_per = [x/len(train_data[0]) for x in train_acc]
+    val_acc_per = [x/len(valid_data[0]) for x in eval_acc]
+    plt.plot(val_acc_per)
+    plt.plot(tr_acc_per)
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.title('Training and Validation Accuracy')
+    plt.legend(['Validation', 'Training'], loc='upper left')
+    plt.show()
     model.save('model.json')
 
 if __name__ == '__main__':

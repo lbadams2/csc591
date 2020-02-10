@@ -171,7 +171,7 @@ class Network(object):
                 training_cost.append(cost)
                 print("[training loss]: {}".format(cost))
             if monitor_training_accuracy:
-                accuracy = self.accuracy(training_data, convert=True)
+                accuracy, _ = self.accuracy(training_data, convert=True)
                 training_accuracy.append(accuracy)
                 print("[training accuracy]: {} / {}".format(
                     accuracy, n))
@@ -180,10 +180,10 @@ class Network(object):
                 evaluation_cost.append(cost)
                 print("[Validation loss]: {}".format(cost))
             if monitor_evaluation_accuracy:
-                accuracy = self.accuracy(evaluation_data)
+                accuracy, _ = self.accuracy(evaluation_data)
                 evaluation_accuracy.append(accuracy)
                 print("[Validation accuracy]: {} / {}".format(
-                    self.accuracy(evaluation_data), n_data))
+                    accuracy, n_data))
             print
         return evaluation_cost, evaluation_accuracy, \
             training_cost, training_accuracy
@@ -278,7 +278,8 @@ class Network(object):
         else:
             results = [(np.argmax(self.feedforward(x)), y)
                         for (x, y) in zip(*data)]
-        return sum(int(x == y) for (x, y) in results)
+
+        return sum(int(x == y) for (x, y) in results), results
 
     def total_cost(self, data, lmbda, convert=False):
         """Return the total cost for the data set ``data``.  The flag
