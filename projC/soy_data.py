@@ -24,6 +24,7 @@ class SoyBeanImgDataset(Dataset):
         y = self.img_frame.iloc[idx, 1]
         image = io.imread(img_name) # all images are [480, 640, 3]
         image = np.transpose(image, (2, 0, 1))
+        #image = image.astype(np.double)
         sample = {'image': image, 'y': y} # transpose gives [3, 480, 640], first conv layer wants channels first
 
         if self.transform:

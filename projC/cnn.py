@@ -21,7 +21,7 @@ class Net(nn.Module):
         self.fc3 = nn.Linear(84, 5)
 
     def forward(self, x):
-        test = self.conv1(x)
+        test = self.conv1(x.float())
         test = F.relu(test)
         x = self.pool(test)
         #x = self.pool(F.relu(self.conv1(x)))
