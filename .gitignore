@@ -6,3 +6,5 @@ __pycache__
 data
 Description*.pdf
 test.py
+*.zip
+projC/Train*

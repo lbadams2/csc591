@@ -12,17 +12,21 @@ and pass to fully connected layer. Then apply softmax, loss function, and backpr
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(3, 6, 5) # this is kernel matrix, the first dimension is 3 channels for rgb
+        # conv2d - (in_channels, out_channels, kernel_size). Stride defaults to 1, padding defaults to 0
+        self.conv1 = nn.Conv2d(3, 6, 5) # 5x5 kernel
         self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6, 16, 5) # this is second kernel matrix over the pooled values
-        self.fc1 = nn.Linear(16 * 5 * 5, 120) # this is fully connected layer
+        self.conv2 = nn.Conv2d(6, 16, 5) # this is second kernel matrix over the pooled values, 5x5
+        self.fc1 = nn.Linear(16 * 5 * 5, 120) # this is fully connected layer, 16*5*5 is 16 output channels and 5x5 kernel in each channel
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 5)
 
     def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))
+        test = self.conv1(x)
+        test = F.relu(test)
+        x = self.pool(test)
+        #x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 16 * 5 * 5)
+        x = x.view(-1, 16 * 5 * 5) # flatten into vector before passing to fully connected layer
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
@@ -38,7 +42,10 @@ for epoch in range(2):  # loop over the dataset multiple times
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
         # get the inputs; data is a list of [inputs, labels]
-        inputs, labels = data
+        #inputs, labels = data
+        inputs = data['image']
+        labels = data['y']
+        print('Image shape:', inputs.shape)
 
         # zero the parameter gradients
         optimizer.zero_grad()
