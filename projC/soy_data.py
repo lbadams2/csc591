@@ -1,7 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
 from skimage import io, transform
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, random_split
 import pandas as pd
 import numpy as np
 import os
@@ -64,24 +64,15 @@ class RandomCrop(object):
         return {'image': image, 'y': y}
 
 
-class ToTensor(object):
-    """Convert ndarrays in sample to Tensors."""
-
-    def __call__(self, sample):
-        image, y = sample['image'], sample['y']
-
-        # swap color axis because
-        # numpy image: H x W x C
-        # torch image: C X H X W
-        image = image.transpose((2, 0, 1))
-        return {'image': torch.from_numpy(image),
-                'y': torch.from_numpy(y)}
-
-
-def load_data():
-    trainset = SoyBeanImgDataset(csv_file='/Users/liam_adams/my_repos/csc591/projC/TrainAnnotations.csv')
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=4, shuffle=True, num_workers=2)
-    return trainloader
+def load_data(batch_size, train_split = .8):
+    dataset = SoyBeanImgDataset(csv_file='/Users/liam_adams/my_repos/csc591/projC/TrainAnnotations.csv')
+    dataset_size = len(dataset)
+    train_size = int(train_split * dataset_size)
+    val_size = dataset_size - train_size
+    train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    return train_loader, val_loader, train_size, val_size
     
 
 def test():
